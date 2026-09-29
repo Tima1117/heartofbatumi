@@ -21,3 +21,55 @@
 .hero:before{content:none}.hero-stage:before{content:"";position:absolute;width:900px;height:900px;border-radius:50%;border:1px solid rgba(255,255,255,.43);right:-145px;top:-130px;pointer-events:none}
 @media(max-width:600px){.visit h2{font-size:clamp(38px,10.2vw,48px)}}
 @media(max-width:360px){.visit-buttons{flex-direction:column}.visit-buttons .button{width:100%;flex:auto;min-height:48px}}
+
+/* A louder menu, using Pizza Room's yellow, red and black rather than white tiles. */
+.menu-section{position:relative;background-color:#211c18;background-image:radial-gradient(rgba(255,196,0,.085) 1px,transparent 1px);background-size:24px 24px;color:#fff6df}
+.menu-section .section-top h2{color:var(--yellow)}
+.menu-section .eyebrow-dark{color:#ff6654}
+.menu-section .section-lede{color:#e1d7c2}
+.menu-section .filter{border:1px solid #847766;color:#fff4d7;background:#332b23;border-radius:8px;box-shadow:3px 3px 0 #0d0b09}
+.menu-section .filter:hover,.menu-section .filter:focus-visible{background:#e6332a;border-color:#e6332a;color:#fff}
+.menu-section .filter.active{background:var(--yellow);border-color:var(--yellow);color:var(--ink)}
+.menu-section .pizza-grid{gap:28px}
+.menu-section .pizza-card{border:3px solid #0e0c0b;border-radius:16px;box-shadow:8px 8px 0 #0e0c0b;background:#f5e9d0;transition:box-shadow .2s ease}
+.menu-section .pizza-card:hover,.menu-section .pizza-card:focus-visible{box-shadow:12px 12px 0 #e6332a}
+.menu-section .pizza-card:focus-visible{outline:3px solid var(--yellow);outline-offset:5px}
+.menu-section .card-image{border-bottom:3px solid #17130f}
+.menu-section .card-image img{transform:scale(1.47)}
+.menu-section .pizza-card:hover .card-image img{transform:scale(1.55)}
+.menu-section .card-number{width:48px;height:48px;border:2px solid #17130f;box-shadow:3px 3px 0 #17130f;transform:rotate(-12deg)}
+.menu-section .card-content{background:#f5e9d0;color:#1b1814}
+.menu-section .pizza-card:nth-child(3n+1) .card-content{background:#ffca23}
+.menu-section .pizza-card:nth-child(3n) .card-content{background:#ffc5ac}
+.menu-section .card-content>p{color:#54493b}
+.menu-section .card-title-row>span{background:var(--red);color:#fff;border-radius:100px;padding:5px 10px;font-size:20px;line-height:1;transform:rotate(4deg)}
+.menu-section .card-title-row h3{min-width:0;overflow-wrap:anywhere}
+.menu-section .card-bottom{border-color:rgba(25,23,19,.25)}
+.menu-section .card-arrow{background:var(--red)}
+.menu-section .price-note{color:#d2c4ad}
+
+.find-us{background:#f4e8ca;padding:100px 0 110px;border-top:7px solid var(--red)}
+.find-us-heading{display:flex;align-items:end;justify-content:space-between;gap:36px;margin-bottom:30px}
+.find-us-heading h2{font-family:Impact,'Oswald',Arial,sans-serif;font-size:clamp(52px,6.4vw,90px);line-height:.98;letter-spacing:-.03em;text-transform:uppercase;margin:0;max-width:740px}
+.find-us-heading>p{max-width:330px;font-size:16px;line-height:1.6;margin:0 0 4px;color:#51493d}
+.directions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-bottom:32px}
+.direction-photo{margin:0;background:#1b1814;border:3px solid #1b1814;border-radius:14px;overflow:hidden;box-shadow:7px 7px 0 #d83226}
+.direction-image{position:relative;height:clamp(220px,28vw,380px);overflow:hidden}
+.direction-image img{object-fit:cover;transition:transform .5s ease}
+.direction-photo:hover img{transform:scale(1.04)}
+.direction-photo figcaption{min-height:62px;display:flex;align-items:center;gap:14px;padding:10px 18px;color:#fff7dd;font-size:15px;font-weight:800}
+.direction-photo figcaption span{color:var(--yellow);font-family:Impact,'Oswald',Arial,sans-serif;font-size:23px}
+.map-card{border:3px solid #1b1814;border-radius:15px;overflow:hidden;background:var(--yellow);box-shadow:8px 8px 0 #d83226}
+.map-copy{display:flex;align-items:center;gap:22px;padding:21px 26px}
+.map-pin{font-size:48px;line-height:1;color:var(--red);font-weight:900}
+.map-copy h3{font-family:Impact,'Oswald',Arial,sans-serif;font-size:32px;line-height:1;margin:0 0 5px;text-transform:uppercase}
+.map-copy p{font-size:14px;line-height:1.35;margin:0}
+.map-copy>a{margin-left:auto;background:#1b1814;color:#fff;padding:15px 18px;border-radius:5px;text-transform:uppercase;font-size:11px;letter-spacing:.06em;font-weight:900;white-space:nowrap}
+.map-copy>a:hover{background:var(--red)}
+.map-frame{height:390px;background:#eee6d2}
+.map-frame iframe{display:block;width:100%;height:100%;border:0}
+@media(max-width:820px){.find-us{padding:75px 0 90px}.find-us-heading{display:block}.find-us-heading>p{margin:16px 0 0;max-width:560px}.direction-image{height:270px}}
+@media(max-width:600px){.menu-section .pizza-grid{gap:23px}.menu-section .card-content{min-height:185px}.find-us{padding:65px 0 75px}.find-us-heading h2{font-size:clamp(48px,11vw,68px)}.find-us-heading>p{font-size:14px}.directions-grid{grid-template-columns:1fr;gap:22px}.direction-image{height:240px}.direction-photo figcaption{font-size:13px}.map-copy{display:grid;grid-template-columns:42px 1fr;gap:12px;padding:18px}.map-pin{font-size:42px}.map-copy h3{font-size:27px}.map-copy p{font-size:12px}.map-copy>a{grid-column:1/-1;margin:0;text-align:center;min-height:44px;display:grid;place-items:center}.map-frame{height:310px}}
+@media(max-width:600px){.modal-content h2{font-size:clamp(30px,8.5vw,45px);overflow-wrap:anywhere}}
+@media(max-width:360px){html:lang(ru) .pizza-card[data-pizza-id="vegetarian"] .card-title-row,html:lang(ka) .pizza-card[data-pizza-id="vegetarian"] .card-title-row{display:flex;flex-direction:column;align-items:flex-start;gap:8px}html:lang(ru) .pizza-card[data-pizza-id="vegetarian"] .card-title-row h3,html:lang(ka) .pizza-card[data-pizza-id="vegetarian"] .card-title-row h3{font-size:23px;white-space:nowrap}}
+@media(max-width:360px){.modal-actions{flex-direction:column;align-items:stretch}.modal-actions .button{width:100%;flex:auto;font-size:11px;min-height:48px}}
