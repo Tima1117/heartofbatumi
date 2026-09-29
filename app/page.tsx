@@ -53,7 +53,7 @@ export default function Home() {
   const filtered=pizzas.filter(p=>filter==="all" || filter==="spicy"&&p.spicy || filter==="veggie"&&p.vegetarian || filter==="classic"&&["pepperoni","margherita","hawaiian","bbq","carbonara"].includes(p.id));
   useEffect(()=>{document.documentElement.lang=lang},[lang]);
   useEffect(()=>{const sync=()=>setSmallScreen(window.innerWidth<=820);sync();window.addEventListener("resize",sync);return()=>window.removeEventListener("resize",sync)},[]);
-  useEffect(()=>{document.body.style.overflow=selected?"hidden":"";return()=>{document.body.style.overflow=""}},[selected]);
+  useEffect(()=>{document.body.style.overflow=selected?"hidden":"";if(!selected)return()=>{document.body.style.overflow=""};const closeOnEscape=(event:KeyboardEvent)=>{if(event.key==="Escape")setSelected(null)};window.addEventListener("keydown",closeOnEscape);return()=>{document.body.style.overflow="";window.removeEventListener("keydown",closeOnEscape)}},[selected]);
   return <>
     <header className="site-header"><div className="header-inner">
       <a className="brand" href="#top" aria-label="Pizza Room home"><span className="brand-mark"><Image src="/images/brand-mark.webp" alt="" fill sizes="52px" /></span><span className="brand-words">PIZZA <b>ROOM</b></span></a>
