@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from "framer-motion";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import Lenis from "lenis";
 import { menu, type Lang, type Text } from "./menu-data";
+import { MorphGallery, type MorphPhoto } from "./morph-gallery";
 
 const t = (en: string, ru: string, ka: string): Text => ({ en, ru, ka });
 
@@ -21,17 +23,17 @@ const heroCards = [
 ];
 const dish = (id: number) => menu.flatMap(c => c.items).find(i => i.id === id)!;
 
-const gallery = [
-  { src: "/images/hob-facade.webp", cls: "wide" },
-  { src: "/images/hob-hall.webp", cls: "" },
-  { src: "/images/menu/62.webp", cls: "" },
-  { src: "/images/hob-night.webp", cls: "wide" },
-  { src: "/images/menu/54.webp", cls: "" },
-  { src: "/images/menu/46.webp", cls: "" },
-  { src: "/images/hob-exterior.webp", cls: "wide" },
-  { src: "/images/menu/25.webp", cls: "" },
-  { src: "/images/menu/16.webp", cls: "" },
+const venuePhotos = [
+  { src: "/images/hob-facade.webp", cap: t("Facade on Mazniashvili St", "Фасад на ул. Мазниашвили", "ფასადი მაზნიაშვილის ქუჩაზე") },
+  { src: "/images/hob-hall.webp", cap: t("Main hall", "Основной зал", "მთავარი დარბაზი") },
+  { src: "/images/hob-night.webp", cap: t("Evening lights", "Вечерние огни", "საღამოს განათება") },
+  { src: "/images/hob-exterior.webp", cap: t("Entrance", "Вход", "შესასვლელი") },
 ];
+const galleryDishIds = [62, 54, 46, 25, 16, 47, 51, 60, 63, 24, 29, 72, 73, 13, 8, 15];
+const morphPhotos = (lang: Lang): MorphPhoto[] => {
+  const dishes = galleryDishIds.map(id => { const d = dish(id); return { src: d.photo, caption: d.name[lang] }; });
+  return venuePhotos.flatMap((v, i) => [{ src: v.src, caption: v.cap[lang] }, ...dishes.slice(i * 4, i * 4 + 4)]);
+};
 
 const copy = {
   en: {
@@ -67,6 +69,7 @@ const copy = {
     reserve_btn: "Open WhatsApp",
     rating: "4.6 · 5 700+ Google reviews",
     photo: "Photo",
+    view: "View",
   },
   ru: {
     nav_menu: "Меню", nav_gallery: "Фото", nav_about: "О нас", nav_visit: "Контакты",
@@ -101,6 +104,7 @@ const copy = {
     reserve_btn: "Открыть WhatsApp",
     rating: "4.6 · 5 700+ отзывов на Google",
     photo: "Фото",
+    view: "Смотреть",
   },
   ka: {
     nav_menu: "მენიუ", nav_gallery: "ფოტო", nav_about: "ჩვენ შესახებ", nav_visit: "კონტაქტი",
@@ -135,16 +139,37 @@ const copy = {
     reserve_btn: "WhatsApp-ის გახსნა",
     rating: "4.6 · 5 700+ შეფასება Google-ზე",
     photo: "ფოტო",
+    view: "ნახვა",
   },
 };
 type Copy = typeof copy["en"];
 
 const lines = (s: string) => s.split("\n").map((l, i) => <span key={i}>{i === 1 ? <em>{l}</em> : l}</span>);
 
+// ─── Smooth scroll ────────────────────────────────────────────────────────────
+function SmoothScroll() {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    if (reduce) return;
+    const lenis = new Lenis({ autoRaf: true, anchors: true, lerp: 0.09 });
+    return () => lenis.destroy();
+  }, [reduce]);
+  return null;
+}
+
 // ─── Parallax Hero ────────────────────────────────────────────────────────────
 function ParallaxHero({ lang, c }: { lang: Lang; c: Copy }) {
+  const ref = useRef<HTMLElement>(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const reduce = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "55%"]);
+  const yGlow = useTransform(scrollYProgress, [0, 1], ["0%", "45%"]);
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "34%"]);
+  const yCards = useTransform(scrollYProgress, [0, 1], [0, -90]);
+  const yOrn = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const fade = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   const onMove = useCallback((e: MouseEvent) => {
     if (reduce) return;
@@ -162,61 +187,70 @@ function ParallaxHero({ lang, c }: { lang: Lang; c: Copy }) {
   });
 
   return (
-    <section className="parallax-hero" aria-label="Heart of Batumi">
-      <div className="parallax-layer parallax-bg" style={layer(7, 4)}>
-        <Image src="/images/hob-hall.webp" alt="" fill priority sizes="100vw" style={{ objectFit: "cover", objectPosition: "center 40%" }} />
-        <div className="parallax-darken" />
-      </div>
+    <section ref={ref} className="parallax-hero" aria-label="Heart of Batumi">
+      <motion.div className="parallax-layer parallax-bg" style={reduce ? undefined : { y: yBg }}>
+        <div className="mouse-fill" style={layer(7, 4)}>
+          <Image src="/images/hob-hall.webp" alt="" fill priority sizes="100vw" style={{ objectFit: "cover", objectPosition: "center 40%" }} />
+          <div className="parallax-darken" />
+        </div>
+      </motion.div>
 
-      <div className="parallax-layer parallax-glow" style={layer(3, 2)} />
+      <motion.div className="parallax-layer parallax-glow" style={reduce ? undefined : { y: yGlow }} />
 
       {heroCards.map(({ id, cls, speed, float }) => {
         const d = dish(id);
         return (
-          <div key={id} className={`parallax-layer hero-card ${cls}`} style={layer(speed[0], speed[1])} aria-hidden>
-            <motion.div
-              className="hero-card-inner"
-              animate={reduce ? undefined : { y: [0, -9, 0] }}
-              transition={{ repeat: Infinity, duration: float, ease: "easeInOut" }}
-            >
-              <div className="hero-card-photo">
-                <Image src={d.photo} alt="" fill sizes="240px" style={{ objectFit: "cover" }} />
-              </div>
-              <p className="hero-card-cap">{d.name[lang]} <span>{d.price} ₾</span></p>
-            </motion.div>
-          </div>
+          <motion.div key={id} className={`parallax-layer hero-card ${cls}`} style={reduce ? undefined : { y: yCards }} aria-hidden>
+            <div style={layer(speed[0], speed[1])}>
+              <motion.div
+                className="hero-card-inner"
+                animate={reduce ? undefined : { y: [0, -9, 0] }}
+                transition={{ repeat: Infinity, duration: float, ease: "easeInOut" }}
+              >
+                <div className="hero-card-photo">
+                  <Image src={d.photo} alt="" fill sizes="240px" style={{ objectFit: "cover" }} />
+                </div>
+                <p className="hero-card-cap">{d.name[lang]} <span>{d.price} ₾</span></p>
+              </motion.div>
+            </div>
+          </motion.div>
         );
       })}
 
-      <div className="parallax-layer parallax-text" style={layer(5, 3)}>
-        <motion.div
-          className="hero-content"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <p className="hero-eyebrow"><span className="eyebrow-line" />{c.eyebrow}<span className="eyebrow-line" /></p>
-          <h1 className="hero-headline">{c.headline.split("\n").map((l, i) => <span key={i}>{l}</span>)}</h1>
-          <p className="hero-tagline">{c.tagline}</p>
-          <div className="hero-rating"><span className="stars">★★★★★</span><span>{c.rating}</span></div>
-          <div className="hero-actions">
-            <a className="btn btn-light" href="#menu">{c.cta_menu}<span>↓</span></a>
-            <a className="btn btn-outline-light" href={whatsapp} target="_blank" rel="noopener noreferrer">{c.cta_book}<span>↗</span></a>
-          </div>
-        </motion.div>
-      </div>
+      <motion.div className="parallax-layer parallax-text" style={reduce ? undefined : { y: yText, opacity: fade }}>
+        <div className="mouse-fill" style={layer(5, 3)}>
+          <motion.div
+            className="hero-content"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="hero-eyebrow"><span className="eyebrow-line" />{c.eyebrow}<span className="eyebrow-line" /></p>
+            <h1 className="hero-headline">{c.headline.split("\n").map((l, i) => <span key={i}>{l}</span>)}</h1>
+            <p className="hero-tagline">{c.tagline}</p>
+            <div className="hero-rating"><span className="stars">★★★★★</span><span>{c.rating}</span></div>
+            <div className="hero-actions">
+              <a className="btn btn-light" href="#menu">{c.cta_menu}<span>↓</span></a>
+              <a className="btn btn-outline-light" href={whatsapp} target="_blank" rel="noopener noreferrer">{c.cta_book}<span>↗</span></a>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
 
-      <div className="parallax-layer parallax-ornament" style={layer(36, 22)} aria-hidden>
-        <svg width="360" height="360" viewBox="0 0 360 360" fill="none">
-          <circle cx="180" cy="180" r="178" stroke="rgba(212,180,122,0.18)" strokeWidth="1" />
-          <circle cx="180" cy="180" r="140" stroke="rgba(212,180,122,0.1)" strokeWidth="1" />
-          {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
-            <path key={a} transform={`rotate(${a} 180 180)`} d="M180 30 C186 62, 198 74, 180 92 C162 74, 174 62, 180 30Z" fill="rgba(212,180,122,0.16)" />
-          ))}
-          <circle cx="180" cy="180" r="5" fill="rgba(212,180,122,0.45)" />
-        </svg>
-      </div>
+      <motion.div className="parallax-layer parallax-ornament" style={reduce ? undefined : { y: yOrn }} aria-hidden>
+        <div style={layer(36, 22)}>
+          <svg width="360" height="360" viewBox="0 0 360 360" fill="none">
+            <circle cx="180" cy="180" r="178" stroke="rgba(212,180,122,0.18)" strokeWidth="1" />
+            <circle cx="180" cy="180" r="140" stroke="rgba(212,180,122,0.1)" strokeWidth="1" />
+            {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
+              <path key={a} transform={`rotate(${a} 180 180)`} d="M180 30 C186 62, 198 74, 180 92 C162 74, 174 62, 180 30Z" fill="rgba(212,180,122,0.16)" />
+            ))}
+            <circle cx="180" cy="180" r="5" fill="rgba(212,180,122,0.45)" />
+          </svg>
+        </div>
+      </motion.div>
 
+      <div className="parallax-fade" />
       <motion.div className="hero-scroll-hint" animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}>
         <span>{c.scroll}</span><span className="scroll-arrow">↓</span>
       </motion.div>
@@ -264,28 +298,6 @@ function MenuSection({ lang, c, onPhoto }: { lang: Lang; c: Copy; onPhoto: (src:
         </motion.div>
 
         <p className="menu-note">{c.menuNote}</p>
-      </div>
-    </section>
-  );
-}
-
-// ─── Gallery ──────────────────────────────────────────────────────────────────
-function GallerySection({ c, onPhoto }: { c: Copy; onPhoto: (src: string) => void }) {
-  return (
-    <section className="gallery-sec" id="gallery">
-      <div className="container">
-        <div className="section-header">
-          <p className="eyebrow light"><span className="eyebrow-line" />{c.galEyebrow}</p>
-          <h2 className="section-title light">{lines(c.galTitle)}</h2>
-          <p className="section-lede light">{c.galText}</p>
-        </div>
-        <div className="gallery-grid">
-          {gallery.map((g, i) => (
-            <motion.button key={g.src} className={`gallery-thumb ${g.cls}`} onClick={() => onPhoto(g.src)} whileHover={{ scale: 1.015 }} transition={{ duration: 0.25 }} aria-label={`${c.photo} ${i + 1}`}>
-              <Image src={g.src} alt="" fill sizes="(max-width: 760px) 50vw, (max-width: 1100px) 33vw, 25vw" style={{ objectFit: "cover" }} />
-            </motion.button>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -344,7 +356,7 @@ function VisitSection({ c }: { c: Copy }) {
           </div>
         </div>
       </div>
-      <div className="map-wrap">
+      <div className="map-wrap" data-lenis-prevent>
         <iframe src={mapEmbed} title={c.mapTitle} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
       </div>
     </section>
@@ -357,6 +369,7 @@ export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const c = copy[lang];
+  const photos = useMemo(() => morphPhotos(lang), [lang]);
 
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   useEffect(() => {
@@ -368,6 +381,7 @@ export default function Home() {
 
   return (
     <>
+      <SmoothScroll />
       <header className="site-header">
         <div className="header-inner">
           <a className="brand" href="#top">Heart <em>of Batumi</em></a>
@@ -405,7 +419,7 @@ export default function Home() {
           </div>
         </div>
         <MenuSection lang={lang} c={c} onPhoto={setLightbox} />
-        <GallerySection c={c} onPhoto={setLightbox} />
+        <MorphGallery photos={photos} eyebrow={c.galEyebrow} title={lines(c.galTitle)} text={c.galText} hint={c.scroll} label={c.view} onOpen={setLightbox} />
         <AboutSection c={c} />
         <VisitSection c={c} />
       </main>
