@@ -386,8 +386,8 @@ export default function Home() {
         <div className="header-inner">
           <a className="brand" href="#top">Heart <em>of Batumi</em></a>
           <nav className={`nav${mobileOpen ? " open" : ""}`}>
-            <a href="#menu" onClick={() => setMobileOpen(false)}>{c.nav_menu}</a>
             <a href="#gallery" onClick={() => setMobileOpen(false)}>{c.nav_gallery}</a>
+            <a href="#menu" onClick={() => setMobileOpen(false)}>{c.nav_menu}</a>
             <a href="#story" onClick={() => setMobileOpen(false)}>{c.nav_about}</a>
             <a href="#visit" onClick={() => setMobileOpen(false)}>{c.nav_visit}</a>
           </nav>
@@ -418,8 +418,8 @@ export default function Home() {
             <a href={`tel:${phone}`}>{phonePretty}</a>
           </div>
         </div>
-        <MenuSection lang={lang} c={c} onPhoto={setLightbox} />
         <MorphGallery photos={photos} eyebrow={c.galEyebrow} title={lines(c.galTitle)} text={c.galText} hint={c.scroll} label={c.view} onOpen={setLightbox} />
+        <MenuSection lang={lang} c={c} onPhoto={setLightbox} />
         <AboutSection c={c} />
         <VisitSection c={c} />
       </main>
