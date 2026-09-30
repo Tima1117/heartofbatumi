@@ -1,5 +1,28 @@
 import type { Metadata } from "next";
+import { Cormorant_Garamond, Montserrat, Noto_Serif_Georgian } from "next/font/google";
 import "./globals.css";
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin", "cyrillic"],
+  weight: ["300", "400", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const georgian = Noto_Serif_Georgian({
+  subsets: ["georgian"],
+  weight: ["300", "400", "600"],
+  variable: "--font-georgian",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-ui",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Heart of Batumi — Art Café in the Old City",
@@ -16,5 +39,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <body className={`${cormorant.variable} ${montserrat.variable} ${georgian.variable}`}>{children}</body>
+    </html>
+  );
 }
